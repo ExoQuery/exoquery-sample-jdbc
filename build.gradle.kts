@@ -25,11 +25,17 @@ dependencies {
   implementation("io.zonky.test:embedded-postgres:2.0.7")
   implementation("io.zonky.test.postgres:embedded-postgres-binaries-linux-amd64:16.2.0")
 
+  // OPTIONAL: Just for testing
   testImplementation(kotlin("test"))
   testImplementation(kotlin("test-common"))
   testImplementation(kotlin("test-annotations-common"))
 }
 
-tasks.test {
-  useJUnitPlatform()
+// OPTIONAL: Make tests show in the build log even when they pass
+tasks.withType<Test>().configureEach {
+  testLogging {
+    events("passed", "skipped", "failed")
+    showStandardStreams = true
+    exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+  }
 }
