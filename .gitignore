@@ -1,0 +1,35 @@
+# Gradle files
+.gradle/
+build/
+
+# IntelliJ IDEA project files
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Kotlin specific
+*.class
+*.jar
+*.war
+*.ear
+*.kotlin_module
+*.log
+
+# Logs
+*.log
+*.out
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.swp
+*.swo
+*.bak
+
+# Test results
+test-results/
+out/
