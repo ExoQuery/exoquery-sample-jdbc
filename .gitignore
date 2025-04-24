@@ -8,14 +8,6 @@ build/
 *.ipr
 *.iws
 
-# Kotlin specific
-*.class
-*.jar
-*.war
-*.ear
-*.kotlin_module
-*.log
-
 # Logs
 *.log
 *.out
