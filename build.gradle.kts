@@ -1,11 +1,12 @@
 plugins {
-  kotlin("jvm") version "2.1.0" // Currently the plugin is only available for Kotlin-JVM
-  id("io.exoquery.exoquery-plugin") version "2.1.0-0.1.0.PL"
-  kotlin("plugin.serialization") version "2.1.0"
+  kotlin("jvm") version "2.1.20" // Currently the plugin is only available for Kotlin-JVM
+  id("io.exoquery.exoquery-plugin") version "2.1.20-1.1.2.PL"
+  kotlin("plugin.serialization") version "2.1.20"
 }
 
 repositories {
     mavenCentral()
+    maven("https://s01.oss.sonatype.org/service/local/repositories/releases/content/")
     mavenLocal()
 }
 
