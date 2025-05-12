@@ -1,0 +1,283 @@
+package io.exoquery.example
+
+import io.exoquery.annotation.ExoEntity
+import io.exoquery.annotation.ExoField
+import io.exoquery.controller.jdbc.JdbcController
+import io.exoquery.controller.runActions
+import kotlinx.serialization.Serializable
+
+
+suspend fun createSchema(ctx: JdbcController) {
+  ctx.runActions(
+    """
+    create table ACCOUNT_TYPES (
+    ACCOUNT_TYPE varchar(255) PRIMARY KEY,
+    MAPPING_TYPE int);
+    
+    create table ACCOUNTS (
+    NAME varchar(255),
+    TAG varchar(4),
+    NUMBER int PRIMARY KEY,
+    TYPE varchar(255));
+   
+    create table ORDER_PERMISSION_TYPES (
+    TYPE varchar(1) PRIMARY KEY,
+    DESCRIPTION varchar(255));
+   
+    create table PARTNERSHIPS (
+    ID int PRIMARY KEY,
+    ORDER_PERMISSION varchar(1),
+    DESCRIPTION varchar(255)
+    );
+    
+    create table REGISTRY (
+    ALIAS varchar(255) PRIMARY KEY,
+    RECORD_TYPE varchar(1),
+    MARKET varchar(255),
+    DESCRIPTION varchar(255)
+    );
+    
+    create table MERCHANT_CLIENTS (
+    ALIAS varchar(255),
+    CODE varchar(255),
+    ORDER_PERMISSION varchar(1),
+    ACCOUNT_TAG varchar(4)
+    );
+    
+    create table SERVICE_CLIENTS (
+    ALIAS varchar(255),
+    PARTNERSHIP_FK int,
+    ACCOUNT_TAG varchar(4)
+    );
+    
+    create table DEDICATED_ACCOUNTS (
+    ACCOUNT_NUMBER int,
+    CLIENT_ALIAS varchar(255)
+    );
+    
+    INSERT INTO ORDER_PERMISSION_TYPES (TYPE, DESCRIPTION) VALUES ('T', 'Tools');
+    INSERT INTO ORDER_PERMISSION_TYPES (TYPE, DESCRIPTION) VALUES ('H', 'Hardware');
+    INSERT INTO ORDER_PERMISSION_TYPES (TYPE, DESCRIPTION) VALUES ('A', 'Accessories');
+    INSERT INTO ORDER_PERMISSION_TYPES (TYPE, DESCRIPTION) VALUES ('S', 'Supplies');
+    
+    
+    INSERT INTO ACCOUNT_TYPES (ACCOUNT_TYPE, MAPPING_TYPE) VALUES ('ADJUST', 0);
+    INSERT INTO ACCOUNT_TYPES (ACCOUNT_TYPE, MAPPING_TYPE) VALUES ('ADVERTISING', 2);
+    INSERT INTO ACCOUNT_TYPES (ACCOUNT_TYPE, MAPPING_TYPE) VALUES ('INVENTORY', 1);
+    INSERT INTO ACCOUNT_TYPES (ACCOUNT_TYPE, MAPPING_TYPE) VALUES ('TAX', 0);
+    
+    
+    INSERT INTO ACCOUNTS (NAME, NUMBER, TYPE, TAG) VALUES ('TUNV', 111, 'TAX', null);
+    INSERT INTO ACCOUNTS (NAME, NUMBER, TYPE, TAG) VALUES ('AUNV', 222, 'ADJUST', null);
+    
+    INSERT INTO ACCOUNTS (NAME, NUMBER, TYPE, TAG) VALUES ('UMBINV', 707, 'INVENTORY', null);
+    INSERT INTO ACCOUNTS (NAME, NUMBER, TYPE, TAG) VALUES ('ACMEINV', 808, 'INVENTORY', null);
+    INSERT INTO ACCOUNTS (NAME, NUMBER, TYPE, TAG) VALUES ('YOGINV', 909, 'INVENTORY', null);
+    INSERT INTO ACCOUNTS (NAME, NUMBER, TYPE, TAG) VALUES ('YOGADV', 123, 'ADVERTISING', 'YOG');
+    INSERT INTO ACCOUNTS (NAME, NUMBER, TYPE, TAG) VALUES ('SIADV', 456, 'ADVERTISING', 'SID');
+    INSERT INTO ACCOUNTS (NAME, NUMBER, TYPE, TAG) VALUES ('SIADVA', 457, 'ADVERTISING', 'SIDA');
+    INSERT INTO ACCOUNTS (NAME, NUMBER, TYPE, TAG) VALUES ('FFADV', 789, 'ADVERTISING', 'FF');
+    
+    
+    INSERT INTO MERCHANT_CLIENTS (ALIAS, CODE, ORDER_PERMISSION) VALUES ('ACME', 'INC', 'T');
+    INSERT INTO MERCHANT_CLIENTS (ALIAS, CODE, ORDER_PERMISSION) VALUES ('ACMI', 'INC', 'T');
+    INSERT INTO MERCHANT_CLIENTS (ALIAS, CODE, ORDER_PERMISSION) VALUES ('ACMC', 'INC', 'T');
+    INSERT INTO MERCHANT_CLIENTS (ALIAS, CODE, ORDER_PERMISSION) VALUES ('UMB', 'EV', 'T');
+    INSERT INTO MERCHANT_CLIENTS (ALIAS, CODE, ORDER_PERMISSION) VALUES ('UMBP', 'EV', 'H');
+    INSERT INTO MERCHANT_CLIENTS (ALIAS, CODE, ORDER_PERMISSION) VALUES ('UMBI', 'EV', 'H');
+    INSERT INTO MERCHANT_CLIENTS (ALIAS, CODE, ORDER_PERMISSION) VALUES ('UMBC', 'EV', 'H');
+    INSERT INTO MERCHANT_CLIENTS (ALIAS, CODE, ORDER_PERMISSION) VALUES ('YOG', 'GD', 'A');
+    INSERT INTO MERCHANT_CLIENTS (ALIAS, CODE, ORDER_PERMISSION) VALUES ('YOGI', 'GD', 'A');
+    INSERT INTO MERCHANT_CLIENTS (ALIAS, CODE, ORDER_PERMISSION) VALUES ('YOGC', 'GD', 'A');
+    
+    
+    INSERT INTO DEDICATED_ACCOUNTS (ACCOUNT_NUMBER, CLIENT_ALIAS) VALUES (707, 'UMB');
+    INSERT INTO DEDICATED_ACCOUNTS (ACCOUNT_NUMBER, CLIENT_ALIAS) VALUES (707, 'UMBI');
+    INSERT INTO DEDICATED_ACCOUNTS (ACCOUNT_NUMBER, CLIENT_ALIAS) VALUES (707, 'UMBP');
+    INSERT INTO DEDICATED_ACCOUNTS (ACCOUNT_NUMBER, CLIENT_ALIAS) VALUES (707, 'UMBI');
+    INSERT INTO DEDICATED_ACCOUNTS (ACCOUNT_NUMBER, CLIENT_ALIAS) VALUES (707, 'UMBC');
+    INSERT INTO DEDICATED_ACCOUNTS (ACCOUNT_NUMBER, CLIENT_ALIAS) VALUES (808, 'ACME');
+    INSERT INTO DEDICATED_ACCOUNTS (ACCOUNT_NUMBER, CLIENT_ALIAS) VALUES (808, 'ACMI');
+    INSERT INTO DEDICATED_ACCOUNTS (ACCOUNT_NUMBER, CLIENT_ALIAS) VALUES (808, 'ACMC');
+    INSERT INTO DEDICATED_ACCOUNTS (ACCOUNT_NUMBER, CLIENT_ALIAS) VALUES (909, 'YOG');
+    INSERT INTO DEDICATED_ACCOUNTS (ACCOUNT_NUMBER, CLIENT_ALIAS) VALUES (909, 'YOG');
+    INSERT INTO DEDICATED_ACCOUNTS (ACCOUNT_NUMBER, CLIENT_ALIAS) VALUES (909, 'YOGI');
+    INSERT INTO DEDICATED_ACCOUNTS (ACCOUNT_NUMBER, CLIENT_ALIAS) VALUES (909, 'YOGC');
+    
+    
+    INSERT INTO REGISTRY (ALIAS, RECORD_TYPE, MARKET, DESCRIPTION) VALUES ('ACME', 'M', 'us', 'ACME Corp.');
+    INSERT INTO REGISTRY (ALIAS, RECORD_TYPE, MARKET, DESCRIPTION) VALUES ('ACMI', 'M', 'eu', 'ACME International Corp.');
+    INSERT INTO REGISTRY (ALIAS, RECORD_TYPE, MARKET, DESCRIPTION) VALUES ('ACMC', 'M', 'ca', 'ACME Canada.');
+    INSERT INTO REGISTRY (ALIAS, RECORD_TYPE, MARKET, DESCRIPTION) VALUES ('UMB', 'M', 'us', 'Umbrella Corp.');
+    INSERT INTO REGISTRY (ALIAS, RECORD_TYPE, MARKET, DESCRIPTION) VALUES ('UMBI', 'M', 'us', 'Umbrella International Corp.');
+    INSERT INTO REGISTRY (ALIAS, RECORD_TYPE, MARKET, DESCRIPTION) VALUES ('UMBP', 'M', 'us', 'Umbrella Projects Ltd.');
+    INSERT INTO REGISTRY (ALIAS, RECORD_TYPE, MARKET, DESCRIPTION) VALUES ('UMBC', 'M', 'ca', 'Umbrella Canada Corp.');
+    INSERT INTO REGISTRY (ALIAS, RECORD_TYPE, MARKET, DESCRIPTION) VALUES ('YOG', 'M', 'us', 'Y.G. Schwartz Enterprises.');
+    INSERT INTO REGISTRY (ALIAS, RECORD_TYPE, MARKET, DESCRIPTION) VALUES ('YOGI', 'M', 'eu', 'Y.G. Schwartz International');
+    INSERT INTO REGISTRY (ALIAS, RECORD_TYPE, MARKET, DESCRIPTION) VALUES ('YOGC', 'M', 'ca', 'Y.G. Schwartz International');
+    
+    INSERT INTO REGISTRY (ALIAS, RECORD_TYPE, MARKET, DESCRIPTION) VALUES ('FNF', 'S', 'us', 'Frin and Flyn Association');
+    INSERT INTO REGISTRY (ALIAS, RECORD_TYPE, MARKET, DESCRIPTION) VALUES ('YOGL', 'S', 'us', 'Y.G. Schwartz Legal Services');
+    INSERT INTO REGISTRY (ALIAS, RECORD_TYPE, MARKET, DESCRIPTION) VALUES ('HSG', 'S', 'us', 'Hakk and Severance Group');
+    INSERT INTO REGISTRY (ALIAS, RECORD_TYPE, MARKET, DESCRIPTION) VALUES ('FNJ', 'S', 'us', 'Krueger and Voorhees Alliance');
+    INSERT INTO REGISTRY (ALIAS, RECORD_TYPE, MARKET, DESCRIPTION) VALUES ('HSGI', 'S', 'eu', 'Hakk and Severance International');
+    INSERT INTO REGISTRY (ALIAS, RECORD_TYPE, MARKET, DESCRIPTION) VALUES ('FNJI', 'S', 'eu', 'Krueger and Voorhees Global Alliance');
+    
+    
+    INSERT INTO PARTNERSHIPS (ID, ORDER_PERMISSION, DESCRIPTION) VALUES (1, 'S', 'Y.G. Schwartz Supplies Procurement');
+    INSERT INTO PARTNERSHIPS (ID, ORDER_PERMISSION, DESCRIPTION) VALUES (2, 'T', 'Frin and Flyn Procurement');
+    INSERT INTO PARTNERSHIPS (ID, ORDER_PERMISSION, DESCRIPTION) VALUES (3, 'H', 'Special Individuals Fulfillment');
+    INSERT INTO PARTNERSHIPS (ID, ORDER_PERMISSION, DESCRIPTION) VALUES (4, 'H', 'Special Individuals Fulfillment International');
+    
+    INSERT INTO SERVICE_CLIENTS (ALIAS, PARTNERSHIP_FK, ACCOUNT_TAG) VALUES ('YOGL', 1, 'YOG');
+    INSERT INTO SERVICE_CLIENTS (ALIAS, PARTNERSHIP_FK, ACCOUNT_TAG) VALUES ('FNF', 2, 'SID');
+    INSERT INTO SERVICE_CLIENTS (ALIAS, PARTNERSHIP_FK, ACCOUNT_TAG) VALUES ('HSG', 3, 'SID');
+    INSERT INTO SERVICE_CLIENTS (ALIAS, PARTNERSHIP_FK, ACCOUNT_TAG) VALUES ('KNV', 3, 'FF');
+    INSERT INTO SERVICE_CLIENTS (ALIAS, PARTNERSHIP_FK, ACCOUNT_TAG) VALUES ('HSGI', 4, 'SID');
+    INSERT INTO SERVICE_CLIENTS (ALIAS, PARTNERSHIP_FK, ACCOUNT_TAG) VALUES ('KNVI', 4, 'FF');
+    """
+  )
+}
+
+
+//create table ACCOUNT_TYPES (
+//ACCOUNT_TYPE varchar(255) PRIMARY KEY,
+//MAPPING_TYPE int) GO
+
+@ExoEntity("ACCOUNT_TYPES")
+data class AccountTypes(
+  @ExoField("ACCOUNT_TYPE")
+  val accountType: String,
+  @ExoField("MAPPING_TYPE")
+  val mappingType: Int
+)
+
+///*not null*/
+//create table ACCOUNTS (
+//NAME varchar(255),
+//TAG varchar(4),
+//NUMBER int PRIMARY KEY,
+//TYPE varchar(255),
+//FOREIGN KEY (TYPE) REFERENCES ACCOUNT_TYPES(ACCOUNT_TYPE)
+//) GO
+
+data class Accounts(
+  val name: String,
+  val tag: String,
+  val number: Int,
+  val type: String
+)
+
+
+//create table ORDER_PERMISSION_TYPES (
+//TYPE varchar(1) PRIMARY KEY,
+//DESCRIPTION varchar(255)
+//) GO
+
+@ExoEntity("ORDER_PERMISSION_TYPES")
+data class OrderPermissionTypes(
+  val type: String,
+  val description: String
+)
+
+
+//create table PARTNERSHIPS (
+//ID int PRIMARY KEY,
+//ORDER_PERMISSION varchar(1),
+//DESCRIPTION varchar(255),
+//FOREIGN KEY (ORDER_PERMISSION) REFERENCES ORDER_PERMISSION_TYPES(TYPE)
+//) GO
+
+data class Partnerships(
+  val id: Int,
+  @ExoField("ORDER_PERMISSION")
+  val orderPermission: String,
+  val description: String
+)
+
+//create table REGISTRY (
+//ALIAS varchar(255) PRIMARY KEY,
+//RECORD_TYPE varchar(1),
+//MARKET varchar(255),
+//DESCRIPTION varchar(255)
+//) GO
+
+data class Registry(
+  val alias: String,
+  @ExoField("RECORD_TYPE")
+  val recordType: String,
+  val market: String,
+  val description: String
+)
+
+
+//create table MERCHANT_CLIENTS (
+//ALIAS varchar(255),
+//CODE varchar(255),
+//ORDER_PERMISSION varchar(1),
+//ACCOUNT_TAG varchar(4),
+//FOREIGN KEY (ORDER_PERMISSION) REFERENCES ORDER_PERMISSION_TYPES(TYPE)
+//) GO
+
+@ExoEntity("MERCHANT_CLIENTS")
+data class MerchantClients(
+    val alias: String,
+    val code: String,
+    @ExoField("ORDER_PERMISSION")
+    val permission: String,
+    @ExoField("ACCOUNT_TAG")
+    val tag: String
+)
+
+//create table SERVICE_CLIENTS (
+//ALIAS varchar(255),
+//PARTNERSHIP_FK int,
+//ACCOUNT_TAG varchar(4),
+//FOREIGN KEY (PARTNERSHIP_FK) REFERENCES PARTNERSHIPS(ID)
+//) GO
+
+@ExoEntity("SERVICE_CLIENTS")
+data class ServiceClients(
+  val alias: String,
+  @ExoField("PARTNERSHIP_FK")
+  val partnershipFk: Int,
+  @ExoField("ACCOUNT_TAG")
+  val accountTag: String
+)
+
+//create table DEDICATED_ACCOUNTS (
+//ACCOUNT_NUMBER int,
+//CLIENT_ALIAS varchar(255),
+//FOREIGN KEY (ACCOUNT_NUMBER) REFERENCES ACCOUNTS(NUMBER)
+//) GO
+@Serializable
+data class ClientAccount(
+  val name: String,
+  val alias: String,
+  @ExoField("OFFICIAL_IDENTITY")
+  val officialIdentity: String,
+  @ExoField("ORDER_PERMISSION")
+  val orderPermission: String
+)
+
+//create table DEDICATED_ACCOUNTS (
+//ACCOUNT_NUMBER int,
+//CLIENT_ALIAS varchar(255),
+//FOREIGN KEY (ACCOUNT_NUMBER) REFERENCES ACCOUNTS(NUMBER)
+//) GO
+@ExoEntity("DEDICATED_ACCOUNTS")
+data class DedicatedAccounts(
+  @ExoField("ACCOUNT_NUMBER")
+  val accountNumber: Int,
+  @ExoField("CLIENT_ALIAS")
+  val clientAlias: String
+)
+
+
+data class Client(
+  val alias: String,
+  val code: String,
+  val permission: String,
+  val tag: String
+)
+
