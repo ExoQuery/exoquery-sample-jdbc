@@ -7,17 +7,20 @@ import io.exoquery.controller.jdbc.fromConfig
 import io.exoquery.controller.runActions
 import io.exoquery.jdbc.runOn
 import io.zonky.test.db.postgres.embedded.EmbeddedPostgres
+//import io.zonky.test.db.postgres.embedded.EmbeddedPostgres
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
+import javax.sql.DataSource
 
 @Serializable
-data class Person(val id: Int, val firstName: String, val lastName: String, val age: Int)
+data class Person(val id: Int, val name: String, val age: Int)
+data class Address(val ownerId: Int, val street: String, val zip: String)
 
 suspend fun makeEmbeddedPostgresController(): JdbcControllers.Postgres {
   val postgres = EmbeddedPostgres.start()
-  val ds = postgres.postgresDatabase
+  val ds: DataSource = postgres.postgresDatabase
   val query = capture {
-    Table<Person>().filter { p -> p.lastName == "Ioffe" }
+    Table<Person>().filter { p -> p.name == "Ioffe" }
   }
   val postgresController = JdbcControllers.Postgres(ds)
 
@@ -49,7 +52,7 @@ fun main() = runBlocking {
   val controller = makeEmbeddedPostgresController()
 
   val query = capture {
-    Table<Person>().filter { p -> p.lastName == "Laffe" }
+    Table<Person>().filter { p -> p.name == "Laffe" }
   }
   val output = query.buildFor.Postgres().runOn(controller)
   println(output)
